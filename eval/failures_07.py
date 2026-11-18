@@ -8,6 +8,10 @@ For every run in results/A.jsonl and results/B.jsonl whose grounded check failed
 walks the run's tool calls in order against its golden task's label and marks the
 first call where the run left a correct route, not where it finally broke:
 
+  - a call that came back an error (the registry refused its arguments, or the tool
+    failed) is wrong unless the run later made a call to the same tool that did not:
+    a refused issues_read the run never repeated correctly means it never saw the
+    issue, and everything after is a guess; one it recovered from caused nothing;
   - on a stop task (should-not-act), the right route is to read the issue and change
     nothing, so the first call after reading the issue is the first wrong one: from
     there on the run is triaging an issue it should leave alone;
@@ -62,6 +66,8 @@ def first_wrong(calls: list[dict], task) -> tuple[int | None, str]:
             return i, f"{name}: a write the task forbids"
         if name in TRIAGE_WRITES and target is not None and target != n:
             return i, f"{name} on #{target}, not #{n}"
+        if c.get("is_error") and not any(d.get("name") == name and not d.get("is_error") for d in calls[i + 1:]):
+            return i, f"{name} {json.dumps(args)[:60]} refused, and never made right later"
         if want is None:                       # stop: read the issue, then nothing
             if name != "issues_read":
                 return i, f"{name} after reading an issue it should leave alone"

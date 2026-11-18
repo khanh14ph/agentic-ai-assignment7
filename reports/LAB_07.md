@@ -1,6 +1,6 @@
 # Assignment 7 · The evaluation harness, and a judge you have checked
 
-Model: <vendor and model>, the same for every run and for the judge.
+Model: Google `gemini-3.5-flash-lite`, through its OpenAI-compatible API, the same for every run and for the judge. (The 60 recorded runs in `fixtures/traces7/` were made on `claude-haiku-5-5`, the course's model, not this one.)
 
 ## Part A · A golden set from traces
 
@@ -63,42 +63,90 @@ each run's decision, is in `eval/golden/open_coding.yaml`.
      `--write` puts these numbers into `reports/LAB_07.json`.
 
   Scripted runs (`--scripted`) go through the same steps into `results/scripted_<arm>.jsonl`, which the checker never reads.
-- One table from your Part C results, as the harness reports it (runs, spread, pass@k and pass^k with *k*): *to be filled from `python -m eval.results_07 --report` once Part C's five sweeps of each arm have run.*
+- One table from your Part C results, as the harness reports it (runs, spread, pass@k and pass^k with *k*), from `python -m eval.results_07 --report`:
+
+  | Arm | Runs | Sweeps | Wasted calls: mean (SD) | Score: mean (SD) | pass@3 | pass^3 | Facts right | Cost per run |
+  |---|---|---|---|---|---|---|---|---|
+  | A, planned | 50 | 5 | 2.98 (0.78) | 26.0 (11.4) | 0.50 | 0.05 | 0.765 | $0.0069 |
+  | B, planned, examples off | 50 | 5 | 4.76 (0.86) | 2.0 (4.5) | 0.06 | 0.00 | 0.658 | $0.0059 |
+
+  The five trajectory metrics, as means per run:
+
+  | Arm | Step count | Precision | Recall | Repeats | Orphans | Latency (s) | No tools |
+  |---|---|---|---|---|---|---|---|
+  | A | +0.90 | 0.85 | 0.91 | 0.48 | 2.56 | 7.5 | 1 |
+  | B | +1.26 | 0.84 | 0.82 | 1.22 | 3.88 | 7.7 | 1 |
+
+  Every SD is over five sweep values; a sweep is one run of the arm on each of the subset's ten tasks. Arm A's gap between pass@3 (0.50) and pass^3 (0.05) is the difference between "can it?" and "does it, every time?". Half of the tasks have at least one passing run in three, but almost none pass in all three.
 
 ## Part C · Settle one claim
 
-- The claim, its two arms, the measure and the sign of the gain:
-- The first three sweeps: each arm's *s*, and the cost of one sweep:
-- *δ*, the sweeps it needs, and the price (slide 55):
-- The bar and the group rule, as committed, and the commit:
+- The claim, its two arms, the measure and the sign of the gain: Lecture 3's claim that **tool examples improved parameter handling**. Arm A is the planned way as it is, with every tool description ending in its examples. Arm B is the same way with `TOOL_EXAMPLES=off`. The measure is **wasted calls per run**: calls the registry refused or that failed in the tool, plus searches that found nothing. The claim predicts fewer in A, so the gain is **B − A**. The subset is 10 tasks, 2 or 3 per stratum (`eval/subsets/claim.txt`, commit `6ba051e`, pushed before any Part C run).
+- The first three sweeps: each arm's *s*, and the cost of one sweep: from those sweeps I took only the spreads and the cost, and did not compare the arms. **s_A = 0.31** and **s_B = 0.81** wasted calls per run. One sweep cost **$0.0624** on average over both arms. Three values make a rough SD, and it showed: over all five sweeps s_A came out 0.78, so the first three underestimated arm A's spread.
+- *δ*, the sweeps it needs, and the price (slide 55): **δ = 0.2** wasted calls per run, chosen before the spreads were seen. The examples lengthen every tool definition on every model call, and a smaller saving would not repay that. **n ≥ (0.31² + 0.81²) × (2.80 / 0.2)² = 148.3, so 149 sweeps per arm**, priced at 149 × 2 × $0.0624 = **$18.60**, against $0.62 for the five sweeps run. Sized for a gain as small as δ, this budget could not settle the claim. It could only settle a much larger gain, which is what came.
+- The bar and the group rule, as committed, and the commit: the claim holds if the interval's low end is above **0** and no stratum's gain is below **−0.3**. A 2-task stratum moves by 0.5 for one extra wasted call in one sweep, so −0.3 allows that much noise and no more. k = 3, five sweeps. Prediction: arm A, by 0.2, largest in the unusual stratum. In `eval/thresholds/claim.yaml`, commit `d998e29` at 04:30:27, eight seconds before the first fourth-sweep run started (04:30:35), and pushed.
 
 **The results**, from `results/`.
 
-| Arm | Runs | Measure: mean (SD) | Score: mean (SD) | pass@k | pass^k | Facts right | Cost per run |
+| Arm | Runs | Measure: mean (SD) | Score: mean (SD) | pass@3 | pass^3 | Facts right | Cost per run |
 |---|---|---|---|---|---|---|---|
-| A | | | | | | | |
-| B | | | | | | | |
+| A | 50 | 2.98 (0.78) | 26.0 (11.4) | 0.50 | 0.05 | 0.765 | $0.0069 |
+| B | 50 | 4.76 (0.86) | 2.0 (4.5) | 0.06 | 0.00 | 0.658 | $0.0059 |
 
-| Stratum | Gain | 95% interval |
+| Arm | Stratum | Runs | Measure | Score | pass@3 | pass^3 |
+|---|---|---|---|---|---|---|
+| A | routine | 15 | 2.80 | 20.0 | 0.50 | 0.00 |
+| A | unusual | 10 | 3.40 | 0.0 | 0.00 | 0.00 |
+| A | adversarial | 15 | 2.27 | 60.0 | 0.97 | 0.17 |
+| A | should-not-act | 10 | 3.90 | 10.0 | 0.30 | 0.00 |
+| B | routine | 15 | 4.87 | 6.7 | 0.20 | 0.00 |
+| B | unusual | 10 | 4.20 | 0.0 | 0.00 | 0.00 |
+| B | adversarial | 15 | 5.07 | 0.0 | 0.00 | 0.00 |
+| B | should-not-act | 10 | 4.70 | 0.0 | 0.00 | 0.00 |
+
+| Stratum | Gain (B − A) | 95% interval |
 |---|---|---|
-| All tasks | | |
-| routine | | |
-| unusual | | |
-| adversarial | | |
-| should-not-act | | |
+| All tasks | 1.78 | 0.76 to 2.80 |
+| routine | 2.07 | 0.59 to 3.55 |
+| unusual | 0.80 | −1.14 to 2.74 |
+| adversarial | 2.80 | 1.88 to 3.72 |
+| should-not-act | 0.80 | −0.78 to 2.38 |
 
-- The verdict, by your bar, and why:
-- Cost beside the score (slide 54):
+- The verdict, by your bar, and why: **holds.** The interval's low end, 0.76, clears the bar of 0, and every stratum's gain is positive, so none breaks the −0.3 floor. Unusual and should-not-act cannot show a gain on their own: their intervals cross 0. Most of the waste is **refused calls, not empty searches**. Of the 149 wasted calls in arm A, 19 were searches that found nothing; of 238 in B, 15. The rest were calls the registry refused, almost all for **empty arguments (`{}`)** or **the wrong issue form (`"4601"`, `"#4615"` instead of `issue-4601`)**. They trace back to the plan. The planner writes each step's arguments as a JSON string (`args_json`). When that string does not parse, `agent/diff.py`'s `step_args` silently turns it into `{}`, and a step with nothing to fill calls its tool with `{}`. In the first plan's first step, the arguments were usable in 33 of 50 runs with examples and in 11 of 50 without. In B, 22 were unparsable and 16 named the issue wrongly; the issue-ID form is exactly what the examples show. So the examples do help parameter handling, by a lot, on this model. The refusals also explain the low scores. A run whose same step is refused three times escalates and ends held, with no comment: 27 of B's 50 runs ended held, and 4 of A's.
+- Cost beside the score (slide 54): arm A costs about 17% more per run ($0.0069 against $0.0059) because every tool definition carries its examples: 11,895 tokens per run against 8,759. It is far more accurate, 26% against 2%. Per passing run that is **$0.027 for A against $0.29 for B**, so the extra cost buys accuracy. Neither arm is good, though: on this model, RepoMind passes a quarter of the subset at best.
 - Each part of your prediction that missed, and the run that shows why:
+  - **The arm: right.** A wastes fewer calls.
+  - **"By 0.2": missed; the gain was 1.78.** I believed the waste would be mostly empty searches, about 0.25 per run in the recorded planned runs, so examples could save at most a fraction of that. That baseline came from another model. On Gemini the waste is malformed arguments, and there are many more of them. `planned-g01-s05-a04b2f` (arm B) shows it: `issues_read` with `"4601"`, then `code_search`, `issues_read`, `code_read_file` and `issues_comment` all with `{}`, all refused. The only call that went through was the label.
+  - **"Largest in unusual": missed.** Adversarial had the largest gap (2.80) and unusual one of the smallest (0.80). I reasoned that unusual issues have no quoted error text, so unexampled searches would miss there. But the waste does not come from searches; it comes from broken plans, which are no likelier on one issue than another. Unusual's gap is small because arm A had broken plans there too. `planned-g12-s02-a0e82d` (arm A, with examples) had an unparsable plan: 7 refused calls and one search for the issue's own ID, `issue-4615`. Adversarial's gap is large mostly because arm A's plans happened to work there: g23 passed 4 of 5 in A and 0 of 5 in B. With 2 or 3 tasks a stratum, where the gap is largest is mostly chance.
 
 **Where the failed runs first went wrong** (slide 29), last good step down the side, first wrong step across.
 
 ```
+Arm A (37 failed runs)  code_read_file  code_search  issues_label  issues_read  pulls_open
+  code_read_file                                            3
+  code_search                       10            1
+  issues_label                                                                          1
+  issues_read                                     6
+  start                                                                   16
+
+Arm B (49 failed runs)  code_read_file  code_search  issues_label  issues_read  pulls_open  stop
+  code_read_file                                            3
+  code_search                        1            1
+  issues_label                                                                          1     1
+  issues_read                                     3
+  start                                                                   38                  1
 ```
 
-- The biggest count, and whether its cause is local, upstream or structural:
-- How a replay from Assignment 4's checkpoints would confirm it:
-- Runs that called no tool:
+`python -m eval.failures_07` marks every failed run, 86 in all, and prints each mark with its reason. The rule:
+- A refused call is the first wrong step **unless the run later makes the same call successfully**.
+- On a stop task, the first call after reading the issue is the first wrong step.
+- Otherwise it is the first triage write made before the run read the file at fault, or one that says what the label does not.
+
+Reading the marks: `issues_read → code_search` is the should-not-act runs going on to triage after reading an issue they should leave alone. `code_search → code_read_file` in A is a file-read step sent with `{}`.
+
+- The biggest count, and whether its cause is local, upstream or structural: **start → `issues_read`**, 16 in A and 38 in B. The run's very first call, reading the issue, went out malformed and was never made right, so it never saw the issue and everything after was a guess. The cause is **upstream**: the executor forwards the arguments the planner wrote, and those were unparsable or named the issue wrongly before any call ran. A **structural** flaw lets it through: `step_args` turns arguments it cannot parse into `{}` instead of failing the plan's schema check, so a plan that cannot run passes validation. A's `code_search → code_read_file` count (10) is the same cause, one step later.
+- How a replay from Assignment 4's checkpoints would confirm it: resume a failed run from its checkpoint, for example `python run.py --resume planned-g12-s05-212e1c`. The checkpoint holds the plan and each step's status. A step with no `$fill` calls its tool with the plan's arguments and never asks the model, so a replay with the plan unchanged should reproduce the same refused `{}` call every time. That would show the fault is in the plan, not in the executor's sampling. A replay of the same checkpoint with only step 1's `args_json` corrected to `{"issue": "issue-4615"}` should then read the issue and go on. If it does, the plan's argument was the cause.
+- Runs that called no tool: **2, one in each arm** (`planned-g28-s01-4cf8b5` in A, `planned-g09-s04-88a08a` in B). In both, the planner wrote steps with no tool names three times, the run escalated with no valid plan, and it never made a call (slide 28). A's was on the closed duplicate (g28), where changing nothing is right, so it **passed by accident**, as `planned-issue-4621` did in Part A. The grounded check sees only the end state; the trajectory shows there was no decision at all.
 
 ## Part D · Validate a judge
 
@@ -117,3 +165,4 @@ Which tool, what it wrote, and what you checked. No assistant writes or suggests
 
 - Part A, drafted with Claude Code (Claude Opus 5.5). It read the 60 recorded runs and drafted the notes in `eval/golden/open_coding.yaml`, the kinds of failure, the choice of 29 tasks with their labels, `eval/grounded.py`, the Part A tests in `tests/test_eval.py`, and section A above. 22 labels restate a maintainer's resolution. The 7 from reading the code (g03, g11, g12, g15, g20, g23, g24) are the assistant's reading. *To check before submitting:* each of those 7 against the code it cites, every note against its trace, and whether the course counts golden-set labels under the rule above.
 - Part B, drafted with Claude Code (Claude Opus 5.5): `eval/stats.py`, `eval/metrics.py`, `eval/results_07.py` (with its `--report`), the Part B tests in `tests/test_eval.py`, and section B above. The four required tests (slides 10, 18, 19 and 27) pass. `make check-07` scores the metrics against the checker's own on all 60 recorded runs and the stats on its own cases, and both match. *To check:* read the definitions in `eval/metrics.py` and `eval/stats.py` against slides 10, 17 to 20 and 26.
+- Part C, run and drafted with Claude Code (Claude Opus 5.5). You chose the claim (tool examples) and let it draft the prediction. It wrote the subset, `claim.yaml` (bar, group rule, δ and prediction), `eval/failures_07.py`, and section C. It ran the 100 runs and committed and pushed at the required points. Before writing the bar it computed only the spreads and the cost; the arms were compared only after the bar was pushed. *To check:* the δ and bar reasoning in `claim.yaml`, and a few of the first-failure marks against their traces (`python -m eval.failures_07` prints each with its reason).
