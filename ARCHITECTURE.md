@@ -17,7 +17,7 @@ What each layer is for (Lecture 1, slides 42 to 44):
 - **Observability**: a step-by-step record of what it did.
 - **Evaluation**: measuring quality, before and after release.
 
-The table below is RepoMind as Assignment 5 leaves it: its working solution.
+The table below is RepoMind as Assignment 7 leaves it: Assignment 5's working solution, with the Evaluation layer Assignment 7 adds.
 
 | Layer | What does this job | Where it is enforced | Status |
 |---|---|---|---|
@@ -27,6 +27,6 @@ The table below is RepoMind as Assignment 5 leaves it: its working solution.
 | Memory & State | A checkpoint after each file read and before each write, sync, and a resume from the last one; a store of dated records with their origin, read before the first search and written once at the end of a run | `ways/planned.py:387`, `ways/planned.py:400`, `ways/planned.py:263`, `ways/planned.py:283`, `state/checkpointer.py:55`, `state/store.py:96` | present |
 | Control & Policy | The autonomy policy in three columns, enforced by a pre-call hook outside the model: a stop first, prohibited before everything, a user's boundary kept as a rule, the disclosure line, and the reviewer asked for a gated call, with no answer never a yes; an escalation on a named signal that holds; a stop with a live notification; rollback by the remote's compensations | `tools/__init__.py:147`, `policy/hook.py:52`, `policy/hook.py:130`, `policy/hook.py:142`, `policy/hook.py:145`, `policy/hook.py:154`, `policy/hook.py:174`, `policy/boundary.py:33`, `ways/planned.py:209`, `ways/planned.py:460`, `ways/planned.py:546`, `policy/escalation.py:49`, `bin/rollback:24` | partial: the approvals still decay, as Lecture 5's Section B predicts, and nothing measures harm prevented |
 | Observability | One trace line per model call and per tool call, and the plan as data before it runs; every refusal in the hook log, every decision in the decisions log, every write in the remote's log | `agent/loop.py:50`, `ways/planned.py:219`, `policy/hook.py:183` | partial: traces and logs, no alerts |
-| Evaluation | The grounded check reads the tracker, never the agent | `eval/check_triage.py:7` | partial: offline only |
+| Evaluation | A golden set of 29 tasks in four strata, versioned, each with its decision, expected end state, reference and source; a grounded check that scores a run fact by fact from the tracker (live or archived), never from the agent's words; one result line per run; pass@k and pass^k by counting, spreads and 95% intervals; five trajectory metrics by counting; first failures marked at the first wrong step; a bar committed before the runs it governs | `eval/golden/v1/manifest.yaml:4`, `eval/grounded.py:154`, `eval/grounded.py:77`, `eval/results_07.py:146`, `eval/results_07.py:191`, `eval/results_07.py:332`, `eval/stats.py:35`, `eval/stats.py:42`, `eval/stats.py:87`, `eval/metrics.py:121`, `eval/failures_07.py:54`, `eval/thresholds/claim.yaml:30` | partial: offline only, and the judge for what no count can answer is not yet validated (Part D) |
 
 **Empty layers: 0 of 7**, and three are partial.
