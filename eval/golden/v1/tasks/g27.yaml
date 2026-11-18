@@ -1,0 +1,13 @@
+# Should-not-act: a maintainer testing the issue template. Failure acted_when_should_stop happened on it.
+id: g27
+kind: single
+issues: [4628]
+stratum: should_not_act
+decision: stop
+expect:
+  comment: null
+  labels: []
+  pr: none
+source: "4628's resolution: a template test by a maintainer, deleted with no change."
+runs: [agent-issue-4628-s01-f4f549]
+reference: {calls: 1, tools: [issues_read]}

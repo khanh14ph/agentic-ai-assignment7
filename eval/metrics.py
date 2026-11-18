@@ -49,6 +49,7 @@ WRITES = frozenset({
     "issues_comment", "pulls_open", "issues_label", "issues_close", "branches_push", "pulls_merge",
 })
 COMMENT_WRITES = frozenset({"post_comment", "issues_comment"})
+MIN_IDENTIFIER = 3      # shorter identifiers ("1", "on") would match almost any text
 
 
 def canonical(value) -> str:
@@ -56,5 +57,81 @@ def canonical(value) -> str:
     return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
 
 
+def calls_of(lines: list[dict]) -> list[dict]:
+    """The run's calls: every tool_call line, in order, across any resume."""
+    return [line for line in lines if line.get("type") == "tool_call"]
+
+
+def _reference(task) -> dict:
+    ref = task.get("reference") if isinstance(task, dict) else getattr(task, "reference", None)
+    if not ref or "calls" not in ref or "tools" not in ref:
+        raise ValueError("the task has no reference {calls, tools}")
+    return ref
+
+
+def identifiers(call: dict) -> list[str]:
+    """What a read returned that a later step could use: its paths, or else the values
+    in its input as text."""
+    paths = [str(p) for p in call.get("paths") or [] if p]
+    if paths:
+        return paths
+    out = []
+    for value in (call.get("input") or {}).values():
+        if isinstance(value, (list, tuple)):
+            out.extend(str(v) for v in value if v is not None)
+        elif value is not None and not isinstance(value, dict):
+            out.append(str(value))
+    return out
+
+
+def appears(identifier: str, text: str) -> bool:
+    """An identifier appears in text, ignoring case; a path also by its file name alone."""
+    identifier, text = identifier.lower(), text.lower()
+    if len(identifier) < MIN_IDENTIFIER:
+        return False
+    if identifier in text:
+        return True
+    name = identifier.rsplit("/", 1)[-1]
+    return "/" in identifier and len(name) >= MIN_IDENTIFIER and name in text
+
+
+def repeats(calls: list[dict]) -> int:
+    """Calls with the same name and canonical input as an earlier one, each extra once."""
+    seen, out = set(), 0
+    for call in calls:
+        key = (call.get("name"), canonical(call.get("input")))
+        out += key in seen
+        seen.add(key)
+    return out
+
+
+def orphans(calls: list[dict]) -> int:
+    """Reads whose identifiers appear in no later call's input and not in the final comment."""
+    comments = [c for c in calls if c.get("name") in COMMENT_WRITES]
+    final = str((comments[-1].get("input") or {}).get("body") or "") if comments else ""
+    out = 0
+    for i, call in enumerate(calls):
+        if call.get("name") in WRITES:
+            continue
+        later = " ".join(canonical(c.get("input")) for c in calls[i + 1:]) + " " + final
+        out += not any(appears(x, later) for x in identifiers(call))
+    return out
+
+
 def metrics(lines: list[dict], task) -> dict:
-    raise NotImplementedError("Part B, task 4")
+    ref = _reference(task)
+    calls = calls_of(lines)
+    expected = {str(t) for t in ref["tools"]}
+    used = {c.get("name") for c in calls}
+    ends = [line for line in lines if line.get("type") == "run_end"]
+    end = ends[-1] if ends else {}
+    return {
+        "step_count": len(calls) - int(ref["calls"]),
+        "precision": len(used & expected) / len(used) if used else None,
+        "recall": len(used & expected) / len(expected) if expected else 1.0,
+        "repeats": repeats(calls),
+        "orphans": orphans(calls),
+        "no_tools": not calls,
+        "cost_usd": float((end.get("totals") or {}).get("cost_usd") or 0.0),
+        "latency_s": float(end.get("elapsed_s") or 0.0),
+    }

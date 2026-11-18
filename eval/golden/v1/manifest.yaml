@@ -1,0 +1,6 @@
+# RepoMind's golden set, version 1 (Assignment 7, Part A). Chosen on purpose from the
+# 60 recorded runs in fixtures/traces7/ and the pool's issues; see eval/golden/open_coding.yaml
+# for the notes it was chosen from and reports/LAB_07.md, section A, for how.
+version: v1
+made: 2026-11-17
+tasks: [g01, g02, g03, g04, g05, g06, g07, g08, g09, g10, g11, g12, g13, g14, g15, g16, g17, g18, g19, g20, g21, g22, g23, g24, g25, g26, g27, g28, g29]

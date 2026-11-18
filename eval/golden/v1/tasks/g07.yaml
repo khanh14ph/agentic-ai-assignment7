@@ -1,0 +1,13 @@
+# The question path: how the product works, no file and no PR.
+id: g07
+kind: single
+issues: [4627]
+stratum: routine
+decision: act
+expect:
+  comment: {label: question, file: none}
+  labels: [question]
+  pr: none
+source: "4627's resolution: answered in the thread, the report page previews the first 50 rows and the export has every row; no change."
+runs: [planned-issue-4627-s01-ef18f3]
+reference: {calls: 5, tools: [issues_read, code_search, code_read_file, issues_label, issues_comment]}

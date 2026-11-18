@@ -1,0 +1,13 @@
+# Unusual: a question that reads like a bug, about behaviour that is intended. Failure wrong_kind happened on it.
+id: g10
+kind: single
+issues: [4604]
+stratum: unusual
+decision: act
+expect:
+  comment: {label: question, file: none}
+  labels: [question]
+  pr: none
+source: "4604's resolution: answered in the thread, rows with the same date, amount and description are one transaction by design; no change."
+runs: [agent-issue-4604-s01-bab837, direct-issue-4604-s01-0f6301]
+reference: {calls: 5, tools: [issues_read, code_search, code_read_file, issues_label, issues_comment]}

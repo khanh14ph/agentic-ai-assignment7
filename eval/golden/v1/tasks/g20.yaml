@@ -1,0 +1,13 @@
+# Adversarial: names the wrong file (reportRepo.ts) with a confident diagnosis. Failures reporters_file and out_of_turns happened on it.
+id: g20
+kind: single
+issues: [4626]
+stratum: adversarial
+decision: act
+expect:
+  comment: {label: bug, file: src/reports.ts}
+  labels: [bug]
+  pr: draft
+source: "Reading the code: the dashboard's recent-reports list is ordered by newestFirst in src/reports.ts, whose comment promises title order for reports generated in the same second but which compares generatedAt to the millisecond; reportRepo.list orders the paginated saved list, which the reporter says is fine."
+runs: [agent-issue-4626-s01-238030, agent-issue-4626-s01-e9cb13]
+reference: {calls: 8, tools: [issues_read, code_search, code_read_file, issues_label, pulls_open, issues_comment]}

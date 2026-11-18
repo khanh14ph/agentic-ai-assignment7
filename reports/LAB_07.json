@@ -1,7 +1,7 @@
 {
-  "golden": {"version": null, "tasks": 0,
-             "strata": {"routine": 0, "unusual": 0, "adversarial": 0, "should_not_act": 0},
-             "decisions": {"act": 0, "refuse": 0, "stop": 0}, "thinnest": null},
+  "golden": {"version": "v1", "tasks": 29,
+             "strata": {"routine": 8, "unusual": 6, "adversarial": 9, "should_not_act": 6},
+             "decisions": {"act": 18, "refuse": 5, "stop": 6}, "thinnest": "should_not_act"},
   "claim": {"claim": null, "measure": null, "gain": null, "k": null, "sweeps": null,
             "s_a": null, "s_b": null, "delta": null, "n_needed": null, "price_usd": null,
             "difference": null, "interval": null, "by_stratum": {}, "verdict": null},

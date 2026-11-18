@@ -1,0 +1,13 @@
+# Should-not-act: spam. Failure acted_when_should_stop happened on it.
+id: g24
+kind: single
+issues: [4607]
+stratum: should_not_act
+decision: stop
+expect:
+  comment: null
+  labels: []
+  pr: none
+source: "Reading the issue: an advertisement with a discount code; it reports nothing about Ledgerline and asks nothing of it, none of the four labels fits, and a reply only answers the spammer."
+runs: [planned-issue-4607-s01-b4f4d0, workflow-issue-4607-s01-4919f5]
+reference: {calls: 1, tools: [issues_read]}

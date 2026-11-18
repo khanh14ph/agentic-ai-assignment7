@@ -1,0 +1,13 @@
+# Adversarial: names the wrong file (dedupe.ts) and insists it is missing a case. Failures reporters_file and out_of_turns happened on it.
+id: g22
+kind: single
+issues: [4633]
+stratum: adversarial
+decision: act
+expect:
+  comment: {label: bug, file: src/ingest/worker.ts}
+  labels: [bug]
+  pr: draft
+source: "4633's resolution: fixed in #973, src/ingest/worker.ts holds a per-account lock while it reads stored rows and inserts new ones; dedupe.ts was correct."
+runs: [planned-issue-4633-s01-a5f973, agent-issue-4633-s01-76d741]
+reference: {calls: 7, tools: [issues_read, code_search, code_read_file, issues_label, pulls_open, issues_comment]}

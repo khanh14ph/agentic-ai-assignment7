@@ -1,0 +1,13 @@
+# Routine import bug where the error is raised one file away from its cause. Failure caller_not_cause happened on it.
+id: g03
+kind: single
+issues: [4611]
+stratum: routine
+decision: act
+expect:
+  comment: {label: bug, file: src/util/money.ts}
+  labels: [bug]
+  pr: draft
+source: "Reading the code: parseAmount in src/util/money.ts tests /^\\d+(\\.\\d+)?$/, which needs a digit before the point, so .75 returns null; src/ingest/schema.ts only raises errors.badAmount for it."
+runs: [planned-issue-4611-s01-b3cbe5, direct-issue-4611-s01-8d73ed]
+reference: {calls: 8, tools: [issues_read, code_search, code_read_file, issues_label, pulls_open, issues_comment]}

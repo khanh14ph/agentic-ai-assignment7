@@ -1,0 +1,13 @@
+# Should-not-act: a duplicate the maintainer already closed. Failure acted_when_should_stop happened on it.
+id: g28
+kind: single
+issues: [4636]
+stratum: should_not_act
+decision: stop
+expect:
+  comment: null
+  labels: []
+  pr: none
+source: "4636's resolution: duplicate of #4601, tracked there; the maintainer closed it in the thread."
+runs: [agent-issue-4636-s01-4d352a, direct-issue-4636-s01-548b9b]
+reference: {calls: 1, tools: [issues_read]}

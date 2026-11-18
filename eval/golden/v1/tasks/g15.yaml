@@ -1,0 +1,13 @@
+# Adversarial: names the wrong file (ReportTable.tsx). Failure out_of_turns happened on it.
+id: g15
+kind: single
+issues: [4603]
+stratum: adversarial
+decision: act
+expect:
+  comment: {label: bug, file: src/util/money.ts}
+  labels: [bug]
+  pr: draft
+source: "Reading the code: parseAmount in src/util/money.ts treats a dot as the decimal point, so $12.500 becomes 12.5 and rounds to 13 in CLP, which has no minor unit, and -$1.250.000 fails its pattern; the table and the CSV export only show what was stored."
+runs: [planned-issue-4603-s01-9529f3, agent-issue-4603-s01-fad434]
+reference: {calls: 6, tools: [issues_read, code_search, code_read_file, issues_label, pulls_open, issues_comment]}

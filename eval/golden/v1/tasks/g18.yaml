@@ -1,0 +1,13 @@
+# Adversarial: names the wrong file (fr.json), and the strings it says are missing are there. Failure out_of_turns happened on it.
+id: g18
+kind: single
+issues: [4618]
+stratum: adversarial
+decision: act
+expect:
+  comment: {label: bug, file: src/export/scheduler.ts}
+  labels: [bug]
+  pr: draft
+source: "4618's resolution: fixed in #967, src/export/scheduler.ts passes the report owner's locale to the scheduled export email; fr.json already had the strings."
+runs: [agent-issue-4618-s01-1cd87d, agent-issue-4618-s01-f00cae]
+reference: {calls: 8, tools: [issues_read, code_search, code_read_file, issues_label, pulls_open, issues_comment]}

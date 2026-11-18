@@ -1,0 +1,13 @@
+# Unusual: half-hour and 45-minute time zones; the obvious suspect, dates.ts, is not where it was fixed.
+id: g09
+kind: single
+issues: [4602]
+stratum: unusual
+decision: act
+expect:
+  comment: {label: bug, file: src/notifications/rollup.ts}
+  labels: [bug]
+  pr: draft
+source: "4602's resolution: fixed in #966, the rollup in src/notifications/rollup.ts checks every quarter of an hour."
+runs: [agent-issue-4602-s01-e6b5b0]
+reference: {calls: 7, tools: [issues_read, code_search, code_read_file, issues_label, pulls_open, issues_comment]}

@@ -1,0 +1,13 @@
+# Routine API bug with a PR. Failure out_of_turns happened on it.
+id: g08
+kind: single
+issues: [4629]
+stratum: routine
+decision: act
+expect:
+  comment: {label: bug, file: src/api/reports.ts}
+  labels: [bug]
+  pr: draft
+source: "4629's resolution: fixed in #968, src/api/reports.ts keeps next_run_at when a schedule edit leaves the cadence unchanged."
+runs: [planned-issue-4629-s01-87de78, agent-issue-4629-s01-c440db]
+reference: {calls: 6, tools: [issues_read, code_search, code_read_file, issues_label, pulls_open, issues_comment]}
