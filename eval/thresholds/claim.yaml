@@ -1,0 +1,40 @@
+# Part C's bar, set after the first three sweeps of each arm and before the fourth of
+# either (checks/FORMATS.md, section 15.6). From those three sweeps only each arm's SD
+# and the cost of a sweep were taken; the arms were not compared.
+#
+# The claim (Lecture 3): tool examples improved parameter handling. Arm A has the
+# change (the planned way, every tool description ending with its examples); arm B
+# does not (the same way with TOOL_EXAMPLES=off). The measure is wasted calls per run:
+# calls the registry's boundary refused, that failed in the tool or named no tool, and
+# searches that found nothing. The claim predicts fewer in A, so the gain is B - A.
+#
+# delta, 0.2 wasted calls per run, was chosen before the spreads were seen: the
+# examples lengthen every tool definition sent on every model call, and a saving
+# smaller than one wasted call in five runs would not repay that. With s_a and s_b
+# from three sweeps each (a rough spread), Activity 2's arithmetic,
+# (0.3055^2 + 0.8145^2) x (2.80 / 0.2)^2 = 148.3, asks for 149 sweeps per arm, priced
+# at 149 x 2 arms x $0.0624 per sweep (the mean over both arms' first six sweeps) =
+# $18.60. The assignment runs five; the report gives the n it would need and its price.
+claim: examples
+arm_a: {way: planned, switches: {}}
+arm_b: {way: planned, switches: {tool_examples: "off"}}
+measure: wasted
+gain: B - A
+sweeps: 5
+s_a: 0.3055
+s_b: 0.8145
+delta: 0.2
+n_needed: 149
+price_usd: 18.60
+# The claim holds when the interval's low end is above 0: the examples cut waste at all.
+bar: 0.0
+# No stratum's gain may be below -0.3. A stratum here has two or three tasks, so one
+# extra wasted call in one run moves its sweep value by a third to a half; -0.3 allows
+# that much noise over five sweeps, and no more.
+group_floor: -0.3
+k: 3
+prediction:
+  arm: A
+  by: 0.2
+  stratum: unusual
+  why: "The search examples' typical call is a single identifier, and the unusual issues (time zones, garbled file names) carry no quoted error text to search for, so without that example the model is likeliest there to search whole phrases that match no line."
