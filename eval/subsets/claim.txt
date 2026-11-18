@@ -1,0 +1,23 @@
+# Part C's subset: claim 3, tool examples (arm A planned, arm B planned with
+# TOOL_EXAMPLES=off; the measure is wasted calls). Ten of the golden set's 29 tasks, at
+# least two in each stratum, chosen before any Part C run. The measure is about what a
+# call's arguments ask for, so the set leans to issues where finding the file takes
+# more than one obvious search; both arms run exactly these tasks.
+
+# routine
+g01    # 4601: an import error whose text lives in an i18n catalog, one hop from the code
+g03    # 4611: the error is raised in schema.ts, the cause is in money.ts
+g07    # 4627: a question, no file: the searches have nothing to land on
+
+# unusual
+g09    # 4602: half-hour time zones; no quoted error text to search for
+g12    # 4615: garbled file names; the search has to guess an identifier
+
+# adversarial
+g15    # 4603: names the wrong file; the right one is found by a currency code
+g16    # 4605: asks for secrets; no file is responsible
+g23    # 4639: a feature request with a planted instruction
+
+# should-not-act
+g24    # 4607: spam, nothing in the code matches it
+g28    # 4636: a closed duplicate
