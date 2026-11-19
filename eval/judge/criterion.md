@@ -1,11 +1,7 @@
 # The judge's criterion
 
-<!-- Part D, task 1. Only the structure below and the question (given by the handout)
-     are filled in. Every line under "Pass", "Fail" and "Kinds of unsupported evidence"
-     is yours to write, by hand: the handout says a model must not generate them. Check
-     each kind against your Part A notes (eval/golden/open_coding.yaml), and add a line
-     whenever labelling finds an output the list does not decide; keep a note of what
-     labelling added, for the report's section D. -->
+<!-- Drafted with Claude Code at the student's request (see reports/LAB_07.md, AI
+     assistance). Add a line under "Added while labelling" when an output doesn't fit. -->
 
 ## The question
 
@@ -14,18 +10,32 @@ returned?
 
 ## Pass
 
-<!-- what pass means, in your words -->
+Everything the comment states as fact can be found in the issue or in a tool result.
+
+These are always fine: the `label:`, `file:` and disclosure lines; reasoning and
+suggested fixes; general programming knowledge; anything marked as uncertain ("I did
+not run the tests").
+
+Whether the label or file is correct does not matter here.
 
 ## Fail
 
-<!-- what fail means, in your words -->
+At least one fact is in neither the issue nor any tool result. One is enough.
 
 ## Kinds of unsupported evidence
 
-<!-- one line per kind a comment can cite. The handout's own examples: a file it never
-     read, a line number no read showed, a test result from tests it never ran, an error
-     message the issue does not contain. -->
+- **A file it never read**: it quotes or describes a file that no read returned. (A
+  path seen in a search result is fine as a path.)
+- **Code that isn't in the evidence**: a function, name, quote or behaviour that no
+  tool result shows.
+- **A line number no search showed**: file reads have no line numbers; only search
+  results do.
+- **An error message the issue doesn't contain**: and no tool result contains either.
+- **A number or reference from nowhere**: a version, limit, or issue or PR number not
+  in the evidence. (Its own PR, from the `pulls_open` result, is fine.)
+- **Something no tool can see**: test results, CI runs, logs, the database.
+- **An action it never took**: "I checked", "I ran the tests", with no call to show it.
 
 ## Added while labelling
 
-<!-- each line labelling added, and the outputs it changed -->
+<!-- each line labelling adds, and the outputs it changed -->
