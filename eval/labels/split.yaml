@@ -1,0 +1,6 @@
+# Part D's split (slide 42), made by eval/split_07.py from eval/labels/labels.csv:
+# stratified by label and system, seed 7. Committed on its own, before the judge.
+
+examples: [j03, j09, j13, j17, j23, j29, j40, j42, j60]
+tuning: [j01, j02, j05, j06, j07, j10, j12, j14, j19, j21, j22, j25, j28, j30, j31, j34, j35, j41, j46, j48, j50, j51, j55, j58, j59]
+test: [j04, j08, j11, j15, j16, j18, j20, j24, j26, j27, j32, j33, j36, j37, j38, j39, j43, j44, j45, j47, j49, j52, j53, j54, j56, j57]
