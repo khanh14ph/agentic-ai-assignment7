@@ -5,9 +5,9 @@
     python -m eval.label_tool label j07       # (re)label one output
     python -m eval.label_tool status          # how many are labelled, and which are not
 
-This tool only shows each output and writes down what you decide. It analyses
-nothing and suggests nothing: no label in eval/labels/labels.csv may come from a
-model or from code, because the judge is measured against these labels.
+# This tool only shows each output and writes down what you decide. It analyses
+# nothing and suggests nothing: no label in eval/labels/labels.csv may come from a
+# model or from code, because the judge is measured against these labels.
 
 A page shows, in order: the issue as RepoMind read it; every tool call RepoMind made
 before its comment, with exactly what it returned (a file read returns the file's
